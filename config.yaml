@@ -1,0 +1,3 @@
+httpPort: 8080
+dataBase:
+  port: 5432

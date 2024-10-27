@@ -1,9 +1,9 @@
 package main
 
-func main() {
-	// TODO init cfg
+import "github.com/skinkvi/cyrs/internal/config"
 
-	// TODO init logger
+func main() {
+	cfg := config.MustLoadBuPath("../../config/local.yaml")
 
 	// TODO init application
 

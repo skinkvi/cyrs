@@ -5,11 +5,13 @@ import (
 	"os"
 
 	"github.com/ilyakaznacheev/cleanenv"
+	"go.uber.org/zap"
 )
 
 type Config struct {
 	Server   ServerCfg   `yaml:"server"`
 	DataBase DataBaseCfg `yaml:"db"`
+	Logger   *zap.Logger
 }
 
 type DataBaseCfg struct {

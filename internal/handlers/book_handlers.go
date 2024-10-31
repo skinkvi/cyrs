@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/skinkvi/cyrs/internal/models"
@@ -46,5 +45,46 @@ func (h *Handler) UpdateBookHandler(c *gin.Context) {
 		return
 	}
 
-	// todo: доделать тут
+	var input struct {
+		Title         *string `json:"title"`
+		AuthorID      *uint   `json:"author_id"`
+		PublishedDate *string `json:"published_date"`
+		ISBN          *string `json:"isbn"`
+		Available     *bool   `json:"available"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		h.Logger.Sugar().Error("Failed to bing JSON: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if input.Title != nil {
+		book.Title = *input.Title
+	}
+
+	if input.AuthorID != nil {
+		book.AuthorID = *input.AuthorID
+	}
+
+	if input.PublishedDate != nil {
+		book.PublishedDate = *input.PublishedDate
+	}
+
+	if input.ISBN != nil {
+		book.ISBN = *input.ISBN
+	}
+
+	if input.Available != nil {
+		book.Available = *input.Available
+	}
+
+	if err := h.DB.Save(&book).Error; err != nil {
+		h.Logger.Sugar().Error("Failed to update book: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update book"})
+		return
+	}
+
+	h.Logger.Sugar().Info("Successfully updated book", book)
+	c.JSON(http.StatusOK, book)
 }

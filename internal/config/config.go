@@ -16,7 +16,7 @@ type Config struct {
 
 type DataBaseCfg struct {
 	Host     string `yaml:"host"`
-	Port     int64  `yaml:"port"`
+	Port     string `yaml:"port"`
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
 	DBName   string `yaml:"dbname"`
@@ -25,7 +25,7 @@ type DataBaseCfg struct {
 }
 
 type ServerCfg struct {
-	Port int64 `yaml:"port"`
+	Port string `yaml:"port"`
 }
 
 func MustLoad() *Config {

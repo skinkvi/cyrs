@@ -78,3 +78,34 @@ func (h *Handler) UpdateAuthorHandler(c *gin.Context) {
 	h.Logger.Sugar().Info("Successfully updated author", author)
 	c.JSON(http.StatusOK, author)
 }
+
+func (h *Handler) GetAuthorHandler(c *gin.Context) {
+	var authors *[]models.Author
+	if err := h.DB.Find(&authors).Error; err != nil {
+		h.Logger.Sugar().Error("Failed to get authors: ", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	h.Logger.Sugar().Info("Successful to get author: ", authors)
+	c.JSON(http.StatusOK, authors)
+}
+
+func (h *Handler) DeleteAuthorHandler(c *gin.Context) {
+	name := c.Param("name")
+
+	var author *models.Author
+	if err := h.DB.Where("name = ?", name).Delete(&author).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			h.Logger.Sugar().Error("Author not found: ", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Author not found"})
+		} else {
+			h.Logger.Sugar().Error("DataBase error: ", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		}
+		return
+	}
+
+	h.Logger.Sugar().Info("Successful deleted author: ", author)
+	c.JSON(http.StatusOK, "Deleted")
+}

@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"reflect"
 
 	"github.com/gin-gonic/gin"
 	"github.com/skinkvi/cyrs/internal/models"
@@ -84,4 +83,30 @@ func (h *Handler) UpdateLoanHandler(c *gin.Context) {
 
 	h.Logger.Sugar().Info("Successfully updated loan", loan)
 	c.JSON(http.StatusOK, loan)
+}
+
+func (h *Handler) GetLoanHandler(c *gin.Context) {
+	var loans []models.Loan
+	if err := h.DB.Find(&loans).Error; err != nil {
+		h.Logger.Sugar().Error("Failed to get loans: ", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	h.Logger.Sugar().Info("Successfully get loans: ", loans)
+	c.JSON(http.StatusOK, loans)
+}
+
+func (h *Handler) DeleteLoanHandler(c *gin.Context) {
+	id := c.Param("id")
+
+	var loan *models.Loan
+	if err := h.DB.Where("id = ?", id).Delete(&loan).Error; err != nil {
+		h.Logger.Sugar().Error("Failed to delete loan: ", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	h.Logger.Info("Successfully delete loan")
+	c.JSON(http.StatusOK, "Delete")
 }

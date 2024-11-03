@@ -78,3 +78,29 @@ func (h *Handler) UpdateReaderHandler(c *gin.Context) {
 	h.Logger.Sugar().Info("Successfully updated reader", reader)
 	c.JSON(http.StatusOK, reader)
 }
+
+func (h *Handler) GetReaderHandler(c *gin.Context) {
+	var readers []models.Reader
+	if err := h.DB.Find(&readers).Error; err != nil {
+		h.Logger.Sugar().Error("Failed to get readers: ", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	h.Logger.Sugar().Info("Successfully to get readers: ", readers)
+	c.JSON(http.StatusOK, readers)
+}
+
+func (h *Handler) DeleteReaderHandler(c *gin.Context) {
+	name := c.Param("name")
+
+	var reader *models.Reader
+	if err := h.DB.Where("name = ?", name).Delete(&reader).Error; err != nil {
+		h.Logger.Sugar().Error("Failed to detele reader: ", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	h.Logger.Info("Successfully reader deleted")
+	c.JSON(http.StatusOK, "deleted")
+}

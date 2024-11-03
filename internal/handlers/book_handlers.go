@@ -88,3 +88,28 @@ func (h *Handler) UpdateBookHandler(c *gin.Context) {
 	h.Logger.Sugar().Info("Successfully updated book", book)
 	c.JSON(http.StatusOK, book)
 }
+
+func (h *Handler) GetBookHandler(c *gin.Context) {
+	var books []models.Book
+	if err := h.DB.Find(&books).Error; err != nil {
+		h.Logger.Sugar().Error("Failed to find book: ", books)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	h.Logger.Sugar().Info("Successfully find book: ", books)
+	c.JSON(http.StatusOK, books)
+}
+
+func (h *Handler) DeleleBookHandler(c *gin.Context) {
+	title := c.Param("title")
+
+	var book *models.Book
+	if err := h.DB.Where("title = ?", title).Delete(&book).Error; err != nil {
+		h.Logger.Sugar().Error("Failed delete book: ", err.Error())
+		return
+	}
+
+	h.Logger.Info("Successfully deleted book")
+	c.JSON(http.StatusOK, "Deleted")
+}

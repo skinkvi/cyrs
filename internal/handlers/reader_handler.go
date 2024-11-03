@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/skinkvi/cyrs/internal/models"
@@ -31,10 +32,16 @@ func (h *Handler) CreateReaderHandler(c *gin.Context) {
 }
 
 func (h *Handler) UpdateReaderHandler(c *gin.Context) {
-	name := c.Param("name")
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		h.Logger.Sugar().Error("Invalid author ID: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid author ID"})
+		return
+	}
 
 	var reader *models.Reader
-	if err := h.DB.Where("name = ?", name).First(&reader).Error; err != nil {
+	if err := h.DB.First(&reader, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			h.Logger.Sugar().Error("Reader not found: ", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Reader not found"})
@@ -92,15 +99,21 @@ func (h *Handler) GetReaderHandler(c *gin.Context) {
 }
 
 func (h *Handler) DeleteReaderHandler(c *gin.Context) {
-	name := c.Param("name")
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		h.Logger.Sugar().Error("Invalid author ID: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid author ID"})
+		return
+	}
 
 	var reader *models.Reader
-	if err := h.DB.Where("name = ?", name).Delete(&reader).Error; err != nil {
+	if err := h.DB.Delete(&reader, id).Error; err != nil {
 		h.Logger.Sugar().Error("Failed to detele reader: ", err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	h.Logger.Info("Successfully reader deleted")
-	c.JSON(http.StatusOK, "deleted")
+	c.JSON(http.StatusOK, gin.H{"message": "Deleted"})
 }

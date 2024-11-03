@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/skinkvi/cyrs/internal/models"
@@ -31,10 +32,16 @@ func (h *Handler) CreateBookHandler(c *gin.Context) {
 }
 
 func (h *Handler) UpdateBookHandler(c *gin.Context) {
-	title := c.Param("title")
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		h.Logger.Sugar().Error("Invalid author ID: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid author ID"})
+		return
+	}
 
 	var book *models.Book
-	if err := h.DB.Where("title = ?", title).First(&book).Error; err != nil {
+	if err := h.DB.First(&book, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			h.Logger.Sugar().Error("Book not found: ", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Book not found"})
@@ -102,14 +109,20 @@ func (h *Handler) GetBookHandler(c *gin.Context) {
 }
 
 func (h *Handler) DeleleBookHandler(c *gin.Context) {
-	title := c.Param("title")
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		h.Logger.Sugar().Error("Invalid author ID: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid author ID"})
+		return
+	}
 
 	var book *models.Book
-	if err := h.DB.Where("title = ?", title).Delete(&book).Error; err != nil {
+	if err := h.DB.Delete(&book, id).Error; err != nil {
 		h.Logger.Sugar().Error("Failed delete book: ", err.Error())
 		return
 	}
 
 	h.Logger.Info("Successfully deleted book")
-	c.JSON(http.StatusOK, "Deleted")
+	c.JSON(http.StatusOK, gin.H{"message": "Deleted"})
 }

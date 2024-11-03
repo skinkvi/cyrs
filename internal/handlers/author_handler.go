@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/skinkvi/cyrs/internal/models"
@@ -31,10 +32,16 @@ func (h *Handler) CreateAuthorHandler(c *gin.Context) {
 }
 
 func (h *Handler) UpdateAuthorHandler(c *gin.Context) {
-	name := c.Param("name")
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		h.Logger.Sugar().Error("Invalid author ID: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid author ID"})
+		return
+	}
 
 	var author *models.Author
-	if err := h.DB.Where("name = ?", name).First(&author).Error; err != nil {
+	if err := h.DB.First(&author, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			h.Logger.Sugar().Error("Author not found: ", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Author not found"})
@@ -92,10 +99,15 @@ func (h *Handler) GetAuthorHandler(c *gin.Context) {
 }
 
 func (h *Handler) DeleteAuthorHandler(c *gin.Context) {
-	name := c.Param("name")
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		h.Logger.Sugar().Error("Invalid author ID: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid author ID"})
+		return
+	}
 
-	var author *models.Author
-	if err := h.DB.Where("name = ?", name).Delete(&author).Error; err != nil {
+	if err := h.DB.Delete(&models.Author{}, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			h.Logger.Sugar().Error("Author not found: ", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Author not found"})
@@ -106,6 +118,6 @@ func (h *Handler) DeleteAuthorHandler(c *gin.Context) {
 		return
 	}
 
-	h.Logger.Sugar().Info("Successful deleted author: ", author)
-	c.JSON(http.StatusOK, "Deleted")
+	h.Logger.Sugar().Info("Successful deleted author")
+	c.JSON(http.StatusOK, gin.H{"message": "Deleted"})
 }

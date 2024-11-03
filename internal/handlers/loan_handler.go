@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/skinkvi/cyrs/internal/models"
@@ -32,7 +33,13 @@ func (h *Handler) CreateLoanHandler(c *gin.Context) {
 }
 
 func (h *Handler) UpdateLoanHandler(c *gin.Context) {
-	id := c.Param("id")
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		h.Logger.Sugar().Error("Invalid author ID: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid author ID"})
+		return
+	}
 
 	var loan *models.Loan
 	if err := h.DB.First(&loan, id).Error; err != nil {
@@ -98,15 +105,21 @@ func (h *Handler) GetLoanHandler(c *gin.Context) {
 }
 
 func (h *Handler) DeleteLoanHandler(c *gin.Context) {
-	id := c.Param("id")
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		h.Logger.Sugar().Error("Invalid author ID: ", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid author ID"})
+		return
+	}
 
 	var loan *models.Loan
-	if err := h.DB.Where("id = ?", id).Delete(&loan).Error; err != nil {
+	if err := h.DB.Delete(&loan, id).Error; err != nil {
 		h.Logger.Sugar().Error("Failed to delete loan: ", err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	h.Logger.Info("Successfully delete loan")
-	c.JSON(http.StatusOK, "Delete")
+	c.JSON(http.StatusOK, gin.H{"message": "Delete"})
 }

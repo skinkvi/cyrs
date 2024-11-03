@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	cfg := config.MustLoadBuPath("../../config/local.yaml")
+	cfg := config.MustLoadBuPath("config/local.yaml")
 
 	logger, err := zap.NewProduction()
 	if err != nil {

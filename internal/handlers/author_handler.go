@@ -9,6 +9,17 @@ import (
 	"gorm.io/gorm"
 )
 
+// CreateAuthorHandler godoc
+// @Summary      Создание нового автора
+// @Description  Создаёт нового автора в системе
+// @Tags         authors
+// @Accept       json
+// @Produce      json
+// @Param        author  body      models.Author  true  "Автор"
+// @Success      201     {object}  models.Author
+// @Failure      400     {object}  map[string]string
+// @Failure      500     {object}  map[string]string
+// @Router       /api/authors [post]
 func (h *Handler) CreateAuthorHandler(c *gin.Context) {
 	var author *models.Author
 	if err := c.ShouldBindJSON(&author); err != nil {
@@ -31,6 +42,19 @@ func (h *Handler) CreateAuthorHandler(c *gin.Context) {
 	c.JSON(http.StatusCreated, author)
 }
 
+// UpdateAuthorHandler godoc
+// @Summary      Обновление информации об авторе
+// @Description  Обновляет данные существующего автора
+// @Tags         authors
+// @Accept       json
+// @Produce      json
+// @Param        id      path      int               true  "ID автора"
+// @Param        author  body      models.Author     true  "Данные автора"
+// @Success      200     {object}  models.Author
+// @Failure      400     {object}  map[string]string
+// @Failure      404     {object}  map[string]string
+// @Failure      500     {object}  map[string]string
+// @Router       /api/authors/{id} [put]
 func (h *Handler) UpdateAuthorHandler(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
@@ -86,6 +110,14 @@ func (h *Handler) UpdateAuthorHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, author)
 }
 
+// GetAuthorHandler godoc
+// @Summary      Получение списка авторов
+// @Description  Возвращает список всех авторов
+// @Tags         authors
+// @Produce      json
+// @Success      200  {array}   models.Author
+// @Failure      500  {object}  map[string]string
+// @Router       /api/authors [get]
 func (h *Handler) GetAuthorHandler(c *gin.Context) {
 	var authors *[]models.Author
 	if err := h.DB.Find(&authors).Error; err != nil {
@@ -98,6 +130,17 @@ func (h *Handler) GetAuthorHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, authors)
 }
 
+// DeleteAuthorHandler godoc
+// @Summary      Удаление автора
+// @Description  Удаляет автора по ID
+// @Tags         authors
+// @Produce      json
+// @Param        id   path      int  true  "ID автора"
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  map[string]string
+// @Failure      404  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /api/authors/{id} [delete]
 func (h *Handler) DeleteAuthorHandler(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)

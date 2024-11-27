@@ -1,0 +1,662 @@
+basePath: /api
+definitions:
+  models.Author:
+    properties:
+      birth_date:
+        description: |-
+          BirthDate представляет дату рождения автора
+          example: 1828-09-09
+        type: string
+      name:
+        description: |-
+          Name представляет имя автора
+          example: Лев Толстой
+        type: string
+      nationality:
+        description: |-
+          Nationality представляет национальность автора
+          example: Русский
+        type: string
+    type: object
+  models.Book:
+    properties:
+      author:
+        allOf:
+        - $ref: '#/definitions/models.Author'
+        description: Author представляет автора книги
+      author_id:
+        description: |-
+          AuthorID представляет ID автора книги
+          example: 1
+        type: integer
+      available:
+        description: |-
+          Available указывает, доступна ли книга
+          example: true
+        type: boolean
+      isbn:
+        description: |-
+          ISBN представляет международный стандартный книжный номер
+          example: 978-3-16-148410-0
+        type: string
+      published_date:
+        description: |-
+          PublishedDate представляет дату публикации книги
+          example: 1869-01-01
+        type: string
+      title:
+        description: |-
+          Title представляет название книги
+          example: Война и мир
+        type: string
+    type: object
+  models.Loan:
+    properties:
+      book:
+        allOf:
+        - $ref: '#/definitions/models.Book'
+        description: Book представляет информацию о книге
+      book_id:
+        description: |-
+          BookID представляет ID книги, которую берут в заем
+          example: 123
+        type: integer
+      loan_date:
+        description: |-
+          LoanDate представляет дату выдачи книги
+          example: 2024-04-01
+        type: string
+      reader:
+        allOf:
+        - $ref: '#/definitions/models.Reader'
+        description: Reader представляет информацию о читателе
+      reader_id:
+        description: |-
+          ReaderID представляет ID читателя, берущего книгу
+          example: 456
+        type: integer
+      return_date:
+        description: |-
+          ReturnDate представляет дату возврата книги
+          example: 2024-04-15
+        type: string
+    type: object
+  models.Reader:
+    properties:
+      email:
+        description: |-
+          Email представляет электронную почту читателя
+          example: ivan.ivanov@example.com
+        type: string
+      membership_date:
+        description: |-
+          MembershipDate представляет дату вступления читателя в библиотеку
+          example: 2020-01-15
+        type: string
+      name:
+        description: |-
+          Name представляет имя читателя
+          example: Иван Иванов
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API для управления библиотекой
+  title: Library API
+  version: "1.0"
+paths:
+  /api/authors:
+    get:
+      description: Возвращает список всех авторов
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Author'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получение списка авторов
+      tags:
+      - authors
+    post:
+      consumes:
+      - application/json
+      description: Создаёт нового автора в системе
+      parameters:
+      - description: Автор
+        in: body
+        name: author
+        required: true
+        schema:
+          $ref: '#/definitions/models.Author'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Author'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Создание нового автора
+      tags:
+      - authors
+  /api/authors/{id}:
+    delete:
+      description: Удаляет автора по ID
+      parameters:
+      - description: ID автора
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Удаление автора
+      tags:
+      - authors
+    put:
+      consumes:
+      - application/json
+      description: Обновляет данные существующего автора
+      parameters:
+      - description: ID автора
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные автора
+        in: body
+        name: author
+        required: true
+        schema:
+          $ref: '#/definitions/models.Author'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Author'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Обновление информации об авторе
+      tags:
+      - authors
+  /api/books:
+    get:
+      description: Возвращает список всех книг
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Book'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получение списка книг
+      tags:
+      - books
+    post:
+      consumes:
+      - application/json
+      description: Создает новую книгу в системе и записывает ее в базу данных
+      parameters:
+      - description: Книга
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/models.Book'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Book'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Создание новой книги
+      tags:
+      - books
+  /api/books/{id}:
+    delete:
+      description: Удаляет книгу по ID
+      parameters:
+      - description: ID книги
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Удаление книги
+      tags:
+      - books
+    put:
+      consumes:
+      - application/json
+      description: Обновляет данные существующей книги
+      parameters:
+      - description: ID книги
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные книги
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/models.Book'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Book'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Обновление информации об книге
+      tags:
+      - books
+  /api/loans:
+    get:
+      description: Возвращает список всех завмов
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Loan'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получение списка займов
+      tags:
+      - loans
+    post:
+      consumes:
+      - application/json
+      description: Создает нового займа в системе
+      parameters:
+      - description: Займ
+        in: body
+        name: loan
+        required: true
+        schema:
+          $ref: '#/definitions/models.Loan'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Loan'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Создание нового займа
+      tags:
+      - loans
+  /api/loans/{id}:
+    delete:
+      description: Удаляет займ по ID
+      parameters:
+      - description: ID займа
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Удаление займа
+      tags:
+      - loans
+    put:
+      consumes:
+      - application/json
+      description: Обновляет данные существующего займа
+      parameters:
+      - description: ID займа
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные займа
+        in: body
+        name: loans
+        required: true
+        schema:
+          $ref: '#/definitions/models.Loan'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Loan'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Обновление информации об займе
+      tags:
+      - loans
+  /api/readers:
+    get:
+      description: Возвращает список всех читателей
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Reader'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получение списка читателей
+      tags:
+      - readers
+    post:
+      consumes:
+      - application/json
+      description: Создает нового читателя в системе
+      parameters:
+      - description: Читатель
+        in: body
+        name: reader
+        required: true
+        schema:
+          $ref: '#/definitions/models.Reader'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Reader'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Создание нового читателя
+      tags:
+      - readers
+  /api/readers/{id}:
+    delete:
+      description: Удаляет читателя по ID
+      parameters:
+      - description: ID читателя
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Удаление читателя
+      tags:
+      - readers
+    put:
+      consumes:
+      - application/json
+      description: Обновляет данные существующего читателя
+      parameters:
+      - description: ID читателя
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные читателя
+        in: body
+        name: reader
+        required: true
+        schema:
+          $ref: '#/definitions/models.Reader'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Reader'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Обновление информации об читателе
+      tags:
+      - readers
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

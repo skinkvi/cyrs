@@ -9,6 +9,17 @@ import (
 	"gorm.io/gorm"
 )
 
+// CreateLoanHandler godoc
+// @Summary      Создание нового займа
+// @Description  Создает нового займа в системе
+// @Tags         loans
+// @Accept       json
+// @Produce      json
+// @Param        loan  body      models.Loan  true  "Займ"
+// @Success      201     {object}  models.Loan
+// @Failure      400     {object}  map[string]string
+// @Failure      500     {object}  map[string]string
+// @Router       /api/loans [post]
 func (h *Handler) CreateLoanHandler(c *gin.Context) {
 	var loan *models.Loan
 	if err := c.ShouldBindJSON(&loan); err != nil {
@@ -32,6 +43,19 @@ func (h *Handler) CreateLoanHandler(c *gin.Context) {
 
 }
 
+// UpdateLoanHandler godoc
+// @Summary      Обновление информации об займе
+// @Description  Обновляет данные существующего займа
+// @Tags         loans
+// @Accept       json
+// @Produce      json
+// @Param        id      path      int               true  "ID займа"
+// @Param        loans  body      models.Loan     true  "Данные займа"
+// @Success      200     {object}  models.Loan
+// @Failure      400     {object}  map[string]string
+// @Failure      404     {object}  map[string]string
+// @Failure      500     {object}  map[string]string
+// @Router       /api/loans/{id} [put]
 func (h *Handler) UpdateLoanHandler(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
@@ -92,6 +116,14 @@ func (h *Handler) UpdateLoanHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, loan)
 }
 
+// GetLoanHandler godoc
+// @Summary      Получение списка займов
+// @Description  Возвращает список всех завмов
+// @Tags         loans
+// @Produce      json
+// @Success      200  {array}   models.Loan
+// @Failure      500  {object}  map[string]string
+// @Router       /api/loans [get]
 func (h *Handler) GetLoanHandler(c *gin.Context) {
 	var loans []models.Loan
 	if err := h.DB.Find(&loans).Error; err != nil {
@@ -104,6 +136,17 @@ func (h *Handler) GetLoanHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, loans)
 }
 
+// DeleteLoanHandler godoc
+// @Summary      Удаление займа
+// @Description  Удаляет займ по ID
+// @Tags         loans
+// @Produce      json
+// @Param        id   path      int  true  "ID займа"
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  map[string]string
+// @Failure      404  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /api/loans/{id} [delete]
 func (h *Handler) DeleteLoanHandler(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
